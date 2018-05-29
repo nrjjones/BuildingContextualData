@@ -1,0 +1,39 @@
+---
+title: "README"
+author: "Nathan R. Jones"
+date: "5/24/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Building Contextual Data from Online Sources
+
+## Motivation
+
+  - How can I extend the utility of data I already have?
+  - What else can I find out about the world?
+  - Can I make nice looking things?
+  
+## Helpful packages
+  
+  | Package | What it does |
+  |---------|--------------|
+  | tidyverse | Data manipulation tools |
+  | httr | Similar to cURL, command line web |
+  | jsonlite | Parses JSON, converts to other data format |
+  | ggmap | Easy maps, geocoding, and more with Google API! |
+  | rvest | Web page scraping tools | 
+  | tidycensus | Interacts Census API |
+
+
+## File list
+
+| File | Description |
+| code_examples.R | All steps from presentation |
+| /fun | Folder of functions |
+| /out | Place to store output |
+| /raw | Place to raw data |
+| /presentation | PDF of presentation | 
