@@ -5,7 +5,7 @@ date: "5/24/2018"
 output: html_document
 ---
 
-```{r setup, include=FALSE, message=FALSE}
+```{r setup, include=FALSE, message=FALSE, echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -31,7 +31,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## File list
 
-| File | Description |
+| File | Description |  
+|---------|--------------|
 | code_examples.R | All steps from presentation |
 | /fun | Folder of functions |
 | /out | Place to store output |
