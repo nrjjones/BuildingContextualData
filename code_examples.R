@@ -17,7 +17,9 @@ source("./fun/buildzipdf.R")   # Loads function to scrape zip code data
 ### Example 1: Scrape table from HTML
 ################################################################################
 
-# Initialize data with first page
+# Initialize data frame with first page
+
+df <- read_csv("./raw/dummydata.csv")
 
 zip.df <- build.zip.df("http://zipatlas.com/us/wi/zip-code-comparison/population-below-poverty-level.htm")
 
@@ -35,14 +37,14 @@ for(i in 2:8) {
   zip.df <- bind_rows(zip.df, tmp)
 }
 
-# Reduce to main data
+# Reduce variables to main indicator
 pov <- zip.df[c(2, 6)]
 names(pov) <- c("zip", "poverty")
 pov <- pov %>% filter(!is.na(poverty))
 
 # Write it to a file
-# write_csv(pov, "./out/poverty.csv")
-read_csv("./out/poverty.csv")
+write_csv(pov, "./out/poverty.csv")
+pov <- read_csv("./out/poverty.csv")
 
 # Merge with main data
 df <- left_join(df, pov)
@@ -60,15 +62,18 @@ df %>% select(id, pov)
 
 df <- read_csv("./raw/dummydata.csv")
 
-# ll <- geocode(df$address)
+# Get lat/lon
+ll <- geocode(df$address)
 
+# Get map data
 mdata <- get_map(location = "Dane County",
                  color = "color",
                  source = "google",
                  maptype = "terrain",
                  zoom = 9)
 
- df <- bind_cols(df, ll)
+# Merge lat/lon into main data
+df <- bind_cols(df, ll)
 
 write_csv(df, "./out/geocodedummy.csv")
 df <- read_csv("./out/geocodedummy.csv")
@@ -78,16 +83,19 @@ df$zip.full <- df$zip
 df$zip <- str_extract(df$zip, "^[0-9]{5}")
 df %>% select(zip, zip.full)
 
+# Create a map using sample members' addresses
 ggmap(mdata,
       extent = "device",
       ylab = "Latitude",
       xlab = "Longitude") +
   geom_point(data=df, aes(x = lon, y = lat), color="blue", size=3, show.legend = FALSE)
 
+# Get a list of coops in Dane Co
 co <- get20results("Coop grocery in Dane County")
 
 write_csv(co, "./out/coop results.csv")
 
+# Map people and coops
 ggmap(mdata,
       extent = "device",
       ylab = "Latitude",
@@ -95,7 +103,7 @@ ggmap(mdata,
   geom_point(data=df, aes(x = lon, y = lat), color="red", size=3, show.legend = FALSE) +
   geom_point(data=co, aes(x = lon, y = lat), color="blue", size=3, show.legend = FALSE)
 
-# Set from to all found high schools, to to all first found Planned Parenthood
+# Set FROM to sample addresses, TO to first coop in list
 
 # Initialize
 from <- df$address
@@ -113,8 +121,8 @@ dist1 <- mapdist(
 dist <- dist1
 
 # Mapdist to calculate distance and estimated duration
-# 2 - N search hits
-# Appends to end of the first hit to create a dataset
+# Loop through 2 to N search hits
+# Appends to end of the existing file to create a dataset
 
 for(i in 2:length(co$name)) {
 
@@ -133,10 +141,12 @@ write_csv(dist, "./out/co_distances.csv")
 
 dist <- read_csv("./out/co_distances.csv")
 
-# Sort by originating address, then distance in miles (ascending)
-# Group by orginating address
-# Keep just the top entry creating a dataset of the shortest distances
-# Add
+# What is the closest coop?
+    # Sort by originating address, then distance in miles
+    # Group by orginating address
+    # Keep just the top entry creating a dataset of the shortest distances
+    # Rename variables
+    # Merge into main data
 closest <- dist %>%
   arrange(from, miles) %>%
   group_by(from) %>%
@@ -155,7 +165,7 @@ coop_dist <- left_join(df, cl_coop)
 
 table(coop_dist$closest)
 
-
+# Map sample members and coops
 ggmap(mdata,
       extent = "device",
       ylab = "Latitude",
@@ -163,14 +173,6 @@ ggmap(mdata,
   geom_point(data=df, aes(x = lon, y = lat), color="red", size=1, show.legend = FALSE) +
   geom_point(data=co, aes(x = lon, y = lat), color="blue", size=3, show.legend = FALSE)
 
-# Map
-ggmap(mdata,
-      extent = "device",
-      ylab = "Latitude",
-      xlab = "Longitude") +
-  geom_point(data=df, aes(x = lon, y = lat), size=2) +
-  scale_color_continuous(low="green", high="red") +
-  geom_point(data=uc, aes(x = lon, y = lat), color="orange", size=2, show.legend = FALSE)
 
 ################################################################################
 ### Example 3: Get list and count by criteria
@@ -196,8 +198,8 @@ dist1 <- mapdist(
 dist <- dist1
 
 # Mapdist to calculate distance and estimated duration
-# 2 - N search hits
-# Appends to end of the first hit to create a dataset
+# Loop through 2 to N search hits
+# Appends to end of the existing file to create a dataset
 
 for(i in 2:length(uc$name)) {
 
@@ -213,7 +215,9 @@ for(i in 2:length(uc$name)) {
 }
 
 write_csv(dist, "./out/uc distances.csv")
+dist <- read_csv("./out/uc distances.csv")
 
+# Map sample members and urgent care
 ggmap(mdata,
       extent = "device",
       ylab = "Latitude",
@@ -221,12 +225,11 @@ ggmap(mdata,
   geom_point(data=df, aes(x = lon, y = lat), color="blue", size=3, show.legend = FALSE) +
   geom_point(data=uc, aes(x = lon, y = lat), color="red", size=3, show.legend = FALSE)
 
-dist <- read_csv("./out/uc distances.csv")
 
-# Sort by originating address, then distance in miles (ascending)
+# Sort by originating address, then expected time to destination in minutes
 # Group by orginating address
-# Keep just the top entry creating a dataset of the shortest distances
-# Add
+# Keep just the urgent cares that are less than 25 mins away
+
 within25mins <- dist %>%
   arrange(from, minutes) %>%
   group_by(from) %>%
