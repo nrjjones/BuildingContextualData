@@ -17,12 +17,12 @@ output: html_document
   
   | Package | What it does |
   |---------|--------------|
-  | tidyverse | Data manipulation tools |
-  | httr | Similar to cURL, command line web |
+  | tidyverse | Data manipulation tools, dplyr, ggplot |
+  | httr | Similar to cURL, command line tools for web |
   | jsonlite | Parses JSON, converts to other data format |
   | ggmap | Easy maps, geocoding, and more with Google API! |
   | rvest | Web page scraping tools | 
-  | tidycensus | Interacts Census API |
+  | tidycensus | Interacts with Census API |
 
 
 ## File list

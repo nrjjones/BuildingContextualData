@@ -139,7 +139,7 @@ for(i in 2:length(co$name)) {
 
 write_csv(dist, "./out/co_distances.csv")
 
-dist <- read_csv("./out/co_distances.csv")
+dist <- read_csv("./out/distances.csv")
 
 # What is the closest coop?
     # Sort by originating address, then distance in miles
@@ -162,6 +162,8 @@ cl_coop <- closest %>%
   )
 
 coop_dist <- left_join(df, cl_coop)
+
+write_csv(coop_dist, "./out/coop_dist.csv")
 
 table(coop_dist$closest)
 
