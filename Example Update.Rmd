@@ -1,0 +1,41 @@
+---
+title: "Response Rate Update"
+output:
+  html_document: default
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+
+library(knitr)
+
+source("./example_prep.R")
+
+```
+
+
+This is a response rate update for `r format(Sys.Date(), "%m/%d/%Y")`.  There are currently `r sum(df$n)` responses to the survey.  
+
+## Responses by school  
+
+```{r}
+
+tmp <- df %>% 
+  group_by(school) %>% 
+  summarize(n = sum(n))
+
+kable(tmp)
+
+```
+
+## Responses by date for each school  
+
+```{r}
+
+ggplot(df) +
+  geom_line(aes(x=EndDate, y=Responses, group=school, color=school)) +
+  theme_minimal()
+```
+
